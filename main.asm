@@ -1,4 +1,6 @@
-include macros1.asm
+include macros.asm
+include operar.asm
+include grafica.asm
 
 .model small
 
