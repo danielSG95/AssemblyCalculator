@@ -1,4 +1,6 @@
-include macros1.asm
+include macros.asm
+include operar.asm 
+include grafica.asm
 
 .model small
 
@@ -21,7 +23,7 @@ include macros1.asm
     ; HEADERS AND MENUS
         ; PRINCIPAL MENU
             header db 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 13, 10, 'FACULTAD DE INGENIERIA', 13, 10, 'ESCUELA DE CIENCIAS Y SISTEMAS', 13, 10, 'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1', 13, 10, 'PRIMER SEMESTRE 2020', 13, 10, 'NOMBRE: ANGEL MANUEL MIRANDA ASTURIAS', 13, 10, 'CARNET: 201807394', 13, 10, 'SECCION: A', 13, 10, 'PRACTICA 5', '$'
-            menu db 13, 10, 9, '-_-MENU-_-', 13, 10, 9, '1) Ingresar Funcion f(x)', 13, 10, 9, '2) Funcion en memoria', 13, 10, 9, '3) Derivada f`(x)', 13, 10, 9, '4) Integral F(x)', 13, 10, 9, '5) Graficar Funciones', 13, 10, 9, '6) Reporte', 13, 10, 9, '7) Modo Calculadora', 13, 10, 9, '8) Salir', 13, 10, '$'
+            menu db 13, 10, 9, '-_-MENU-_-', 13, 10, 9, '1) Ingresar Funcion f(x)', 13, 10, 9, '2) Funcion en memoria', 13, 10, 9, '3) Derivada f`(x)', 13, 10, 9, '4) Integral F(x)', 13, 10, 9, '5) Graficar Funciones', 13, 10, 9, '8) Salir', 13, 10, '$'
             msgRoute db 'Ingrese la ruta (##ruta.arq##): ', '$'
 
         ; ENTER FUNCTION
@@ -155,21 +157,17 @@ main proc
         ClearConsole
         
         ; COMPARE THE CHAR THAT THE USER WRITE IN THE PROGRAM
-            cmp al, 31h
+            cmp al, 31h ;1
                 je EnterFunction
-            cmp al, 32h
+            cmp al, 32h ;2
                 je EnterFunctionMemory
-            cmp al, 33h
+            cmp al, 33h ;3
                 je Derived
-            cmp al, 34h
+            cmp al, 34h ;4
                 je Integral
-            cmp al, 35h
+            cmp al, 35h ;5
                 je Graph
-            cmp al, 36h
-                je Reports
-            cmp al, 37h
-                je Calculator
-            cmp al, 38h
+            cmp al, 38h ;8
                 je Exit
         jmp Start
     EnterFunction:
@@ -239,7 +237,7 @@ main proc
         jmp Start
     Derived:
         xor si, si
-        cmp valueX4[si], 24h
+        cmp valueX4[si], 24h ;$
             jne ShowDFunction
         cmp valueX3[si], 24h
             jne ShowDFunction
@@ -257,7 +255,7 @@ main proc
         ShowDFunction:
             print headerDerived
 
-            Clean functionToShow, SIZEOF functionToShow, 24h
+            Clean functionToShow, SIZEOF functionToShow, 24h  ; limpia la variable de entrada de ecuacion
 
             getDFunction functionToShow
 
@@ -268,6 +266,8 @@ main proc
             getChar
 
         jmp Start
+
+
     Integral:
         xor si, si
         cmp valueX4[si], 24h
@@ -302,30 +302,22 @@ main proc
     Graph:
 
         print menuGraph
-
         Pushear
-
         getChar
-
         cmp al, 34h
             je Start
 
         Push ax
 
         print newLine
-
         print msgEnterInterval
         print msgEID
         print msgEnterIntervalF
-
         getText inferiorLimit
-
         print newLine
-
         print msgEnterInterval
         print msgEIU
         print msgEnterIntervalF
-
         getText superiorLimit
 
         Pop ax
@@ -345,6 +337,7 @@ main proc
             GraphAxis
             GraphOriginalMacro inferiorLimit, superiorLimit
             jmp EndGraph
+
         GraphDerived:            
             ; VIDEO MODE
             mov ax, 0013h
@@ -383,69 +376,7 @@ main proc
             Popear
 
             jmp Start
-    Reports:
-
-        xor si, si
-        cmp valueX4[si], 24h
-            jne MakeReport
-        cmp valueX3[si], 24h
-            jne MakeReport
-        cmp valueX2[si], 24h
-            jne MakeReport
-        cmp valueX1[si], 24h
-            jne MakeReport
-        cmp valueX2[si], 24h
-            jne MakeReport
-
-        print msgErrorNoFunction
-        getChar
-        jmp Start
-
-        MakeReport:
-
-            getDateAndHour dateMsg
-
-            Clean reportTxt, SIZEOF reportTxt, 32
-
-            CreateFile routeReport, reportHandler
-
-            GenerateReport reportTxt
-
-            WriteOnFile reportHandler, reportTxt, SIZEOF reportTxt
-
-            CloseFile reportHandler
-
-            jmp Start
-    Calculator:
-        print msgRoute
-
-        Clean routeCalculator, SIZEOF routeCalculator, 00h        
-
-        getChar
-
-        cmp al, '#'
-            jne InvalidRouteError
-        
-        getChar
-
-        cmp al, '#'
-            jne InvalidRouteError
-
-        getRoute routeCalculator
-
-        CheckRoute routeCalculator
-
-        OpenFile routeCalculator, handlerCalculator
-
-        Clean fileContent, SIZEOF fileContent, '$'
-
-        ReadFile handlerCalculator, fileContent, SIZEOF fileContent
-
-        CloseFile handlerCalculator
-
-        AnalizeText fileContent
-
-        jmp Start
+    
     Exit:
         mov ah, 4ch     ; END PROGRAM
         xor al, al
@@ -458,14 +389,6 @@ main proc
             print cleanChar
             print cleanChar        
             jmp Start
-        OpenError:
-            print msgErrorOpen
-            getChar
-            print cleanChar
-            print cleanChar
-            print cleanChar        
-            ClearConsole
-            jmp Calculator
         CreateError:
             print msgErrorCreate
             getChar
@@ -487,18 +410,7 @@ main proc
             print cleanChar
             print cleanChar        
             jmp Start
-        InvalidRouteError:
-            moveCursor 00h, 00h
-            print cleanChar
-            print cleanChar
-            print cleanChar
-            print cleanChar
-            print cleanChar
-            moveCursor 00h, 00h
-            print msgErrorRoute
-            getChar
-            ClearConsole
-            jmp Calculator
+        
         NoEndCharError:
             print missingCharE
             getChar
