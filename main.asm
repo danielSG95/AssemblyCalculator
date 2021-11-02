@@ -1,6 +1,8 @@
+include smachine.asm
 include macros.asm
 include operar.asm 
 include grafica.asm
+
 
 .model small
 
@@ -10,24 +12,28 @@ include grafica.asm
 ; DATA SEGMENT
 .data
 
-    ; TESTING
+    ;   PRUEBA 
         testing db 'TEST', '$'
-    ; END TESTING
 
-    ; SPECIAL CHARACTERS
         newLine db 13, 10, '$'
         cleanChar db '             ', '$'
         tab db 9, '$'
-    ; END SPECIAL CHARACTERS
 
-    ; HEADERS AND MENUS
-        ; PRINCIPAL MENU
-            header db 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 13, 10, 'FACULTAD DE INGENIERIA', 13, 10, 'ESCUELA DE CIENCIAS Y SISTEMAS', 13, 10, 'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1', 13, 10, 'PRIMER SEMESTRE 2020', 13, 10, 'NOMBRE: ANGEL MANUEL MIRANDA ASTURIAS', 13, 10, 'CARNET: 201807394', 13, 10, 'SECCION: A', 13, 10, 'PRACTICA 5', '$'
-            menu db 13, 10, 9, '-_-MENU-_-', 13, 10, 9, '1) Ingresar Funcion f(x)', 13, 10, 9, '2) Funcion en memoria', 13, 10, 9, '3) Derivada f`(x)', 13, 10, 9, '4) Integral F(x)', 13, 10, 9, '5) Graficar Funciones', 13, 10, 9, '8) Salir', 13, 10, '$'
+    ; CABECERAS Y MENUS
+        ; MENU PRINCIPAL
+            menu db 13, 10, 9, '-_-MENU-_-', 13, 10, 9, '1) Ingresar Funcion f(x)', 
+            13, 10, 9, '2) Funcion en memoria', 13, 10, 9, '3) Derivada f`(x)', 
+            13, 10, 9, '4) Integral F(x)', 13, 10, 9, 
+            '5) Graficar Funciones', 13, 10, 9, '8) Salir', 13, 10, '$'
+
             msgRoute db 'Ingrese la ruta (##ruta.arq##): ', '$'
 
-        ; ENTER FUNCTION
-            headerEnterF db 'INGRESE LOS COEFICIENTES PARA SU FUNCION: ', 13, 10, '$'
+        ; INGRESAR FUNCION
+            subMenuF1 db 13, 10, 9, '1- Ingresar Funcion', '$'
+            subMenuF2 db 13, 10, 9,'2- Cargar Archivo', '$'
+            subMenuF3 db 13, 10, 9,'3- Regresar', 10, 9, '$'
+            subMenuF4 db 13, 10, 9, 'Ingrese la ruta del archivo...',13,10, '$'
+            headerEnterF db 'INGRESE LOS COEFICIENTES DE LA FUNCION: ', 13, 10, '$'
             msgEnterF db '- Coeficiente de x', '$'
             msgX4 db '4: ', '$'
             msgX3 db '3: ', '$'
@@ -35,12 +41,12 @@ include grafica.asm
             msgX1 db '1: ', '$'
             msgX0 db '0: ', '$'
 
-        ; FUNCTION IN MEMORY
+        ; FUNCTION EN MEMORIA
             headerFunctionM db 'Funcion en memoria f(x): ', 13, 10, '$'
             msgFunctionM db 'f(x) = '
             txtFunction db 500 dup('$')
 
-        ; DERIVED 
+        ; DERIVADA 
             headerDerived db 'DERIVADA DE f(x): ', 13, 10, '$'
             msgDerived db 'f`(x) = ', '$'
         
@@ -50,61 +56,25 @@ include grafica.asm
             msgC db ' + c', '$'
             msgEnterC db 'Ingrese el valor c: ', '$'
         
-        ; GRAPH
+        ; GRAFICA
             menuGraph db 9, 9, '-_-MENU GRAFICAR-_-', 13, 10, '1) Graficar Original f(x)', 13, 10, '2) Graficar Derivada f`(x)', 13, 10, '3) Graficar Integral F(x)', 13, 10, '4) Regresar f(x)', 13, 10, '$'
             msgEnterInterval db 'Ingrese el valor ', '$'
             msgEIU db 'final ', '$'
             msgEID db 'inicial ', '$'
             msgEnterIntervalF db 'del intervalo: ', '$'
 
-    ; END HEADERS AND MENUS
-
-    ; REPORT
-        headerReport db 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 13, 10, 'FACULTAD DE INGENIERIA', 13, 10, 'ESCUELA DE CIENCIAS Y SISTEMAS', 13, 10, 'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1 A', 13, 10, 'PRIMER SEMESTRE 2020', 13, 10, 'ANGEL MANUEL MIRANDA ASTURIAS', 13, 10, '201807394', 13, 10, 13, 10, 'REPORTE PRACTICA NO. 5', 13, 10, 13, 10
-
-        Fdate db 'Fecha y Hora: '
-        dateMsg db '00/00/0000  00:00:00', 13, 10
-
-        originalMsg db 'Funcion Original', 13, 10
-        derivedMsg db 'Funcion Derivada', 13, 10
-        integralMsg db 'Funcion Integral', 13, 10
-
-        reportTxt db 2000 dup(00h)
-
-        routeReport db 'report.arq'
-
-        reportHandler dw ?
-    ; END REPORT
-
-    ; CALCULATOR
-
-        ; ROUTE
-            routeCalculator db 50 dup('$')
-            handlerCalculator dw ?
-
-        ; FILE
-            fileContent db 2000 dup('$')
-
-        ; END MESSAGE
-            resultMsg db 'El resultado de la operacion es: ', '$'
-
-        ; Stacks
-            operators db 1000 dup ('$')
-            operands dw 1000 dup ('$')
-            auxInt db 50 dup('$')
-
-        ; ERRORS
-            invalidCharE db 'Caracter invalido: ', '$'
-            charI db 00h, '$'
-            missingCharE db 'Falto caracter de finalizacion (', 59, ')', '$'
-    ; END CALCULATOR
-
     ; "VARIABLES"
+
+        ; archivos
+        handler dw ?
+        bufferRead db 1000 dup('$'), '$'
+        auxiliarReader db 150 dup('$'), '$' ; lo utilizare para obtener la ruta del archivo
+
+
         selectionGraph db 31h
-
-        functionToShow db 500 dup('$')
-
-        auxiliarReader db 5 dup('$')
+        functionToShow db 500 dup('$'), '$' ; que tan grande lo puedo hacer ?? 
+        functionsDInMemory db 1000 dup('$'), '$' ; para guardar las funciones derivadas
+        functionsInMemory db 1000 dup('$'), '$' ; para guardar las funciones integradas
 
         valueX4 db 10 dup('$')
         valueX3 db 10 dup('$')
@@ -127,9 +97,7 @@ include grafica.asm
         inferiorLimit db 10 dup('$')
         superiorLimit db 10 dup('$')
 
-    ; END VARIABLES
-
-    ; ERRORS
+    ; ERRORES
         msgErrorNoFunction db 'No ingreso funcion alguna', '$'
         msgErrorRoute db 'No ingreso el formato de ruta esperado', '$'
         msgErrorWrite db 'Error al escribir en el archivo', '$'
@@ -137,9 +105,8 @@ include grafica.asm
         msgErrorCreate db 'Error al crear el archivo', '$'
         msgErrorClose db 'Error al cerrar el archivo', '$'
         msgErrorRead db 'Error al leer el archivo', '$'
-    ; END ERRORS
+        missingCharE db 'Falto caracter de finalizacion (', 59, ')', '$'
 
-; CODE SEGMENT
 .code
 
 main proc
@@ -150,15 +117,12 @@ main proc
     Start:
         ClearConsole
         ; MENU
-        print header
         print menu
         getChar
 
         ClearConsole
-        
-        ; COMPARE THE CHAR THAT THE USER WRITE IN THE PROGRAM
             cmp al, 31h ;1
-                je EnterFunction
+                je subMenuFuncion
             cmp al, 32h ;2
                 je EnterFunctionMemory
             cmp al, 33h ;3
@@ -169,6 +133,19 @@ main proc
                 je Graph
             cmp al, 38h ;8
                 je Exit
+        jmp Start
+
+    subMenuFuncion:
+        print subMenuF1
+        print subMenuF2
+        print subMenuF3
+        getChar
+        cmp al, 31h
+            je EnterFunction
+        cmp al, 32h ;  Cargar archivo
+            je loadFunctions
+        cmp al, 33h ; regresar. 
+            je Start
         jmp Start
     EnterFunction:
         print headerEnterF
@@ -221,6 +198,7 @@ main proc
         getChar
         jmp Start
 
+                ; esto hay que revisarla
         ShowFunction:
             print headerFunctionM
 
@@ -234,6 +212,16 @@ main proc
 
             getChar
 
+        jmp Start
+    loadFunctions:
+        ; aqui leo el archivo y lo cargo al bufferRead
+        ; tambien se deberia de analizar
+        print subMenuF4
+        getText auxiliarReader
+        _openFile auxiliarReader, handler
+        ; _readFile handler, bufferRead, SIZEOF bufferRead
+        ; testing area 
+        AnalyzeFile
         jmp Start
     Derived:
         xor si, si
@@ -336,6 +324,7 @@ main proc
 
             GraphAxis
             GraphOriginalMacro inferiorLimit, superiorLimit
+            ; print bufferSerie
             jmp EndGraph
 
         GraphDerived:            
@@ -373,6 +362,7 @@ main proc
             mov ax, 0003h
             int 10h
 
+            ; llamar aqui a enviar serie.
             Popear
 
             jmp Start
@@ -382,40 +372,28 @@ main proc
         xor al, al
         int 21h
     ; ERRORS
-        WriteError:
-            print msgErrorWrite
-            getChar
-            print cleanChar
-            print cleanChar
-            print cleanChar        
-            jmp Start
-        CreateError:
-            print msgErrorCreate
-            getChar
-            print cleanChar
-            print cleanChar
-            print cleanChar        
-            jmp Start
-        CloseError:
-            print msgErrorClose
-            getChar
-            print cleanChar
-            print cleanChar
-            print cleanChar        
-            jmp Start
-        ReadError:
-            print msgErrorRead
-            getChar
-            print cleanChar
-            print cleanChar
-            print cleanChar        
-            jmp Start
-        
         NoEndCharError:
             print missingCharE
             getChar
             ClearConsole
             jmp Start
+
+        errorClosingFile:
+            print msgErrorClose
+            getChar
+            ClearConsole
+            jmp Start
+        errorOpeningFile:
+            print msgErrorOpen
+            getChar
+            ClearConsole
+            jmp Start
+        errorReadingFile:
+            print msgErrorRead
+            getChar
+            ClearConsole
+            jmp Start
+        
 main endp
 
 end
