@@ -105,7 +105,7 @@ ConcatText macro string1, string2, numBytes
 endm
 
 ;*****************************************************
-; CONVERSIONES 
+; CONVERSIONES
 ;*****************************************************
 
     ConvertToNumber macro string
