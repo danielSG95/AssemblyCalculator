@@ -224,50 +224,36 @@ endm
 ;***********************************************
 ;************MANEJO DE ARCHIVOS*****************
 ;***********************************************
-getFileName macro input, index, buffer
-LOCAL mientras, salida
-Pushear
-xor si, si
-xor di, di
-
-mov si, index
-mientras:
-    mov al, input[si]
-    cmp al, 24h
-    je salida
-    mov buffer[di], al
-    inc si
-    inc di
-    jmp mientras
-salida:
-    mov buffer[di], 00h   
-    Popear 
-endm
 
 _openFile macro name, handler 
-
+Pushear
 mov ah, 3dh
 mov al, 010b
 lea dx, name
 int 21h
-jc msgErrorOpen
+jc errorOpeningFile
 mov handler, ax
+Popear
 endm
 
 _closeFile macro handler
+Pushear
 mov ah, 3eh
 mov bx, handler
 int 21h
-jc msgErrorClose
+jc errorClosingFile
+Popear
 endm
 
 _readFile macro handler, buffer, size
+Pushear
 mov ah, 3fh 
 mov bx, handler
 mov cx, size
 lea dx, buffer
 int 21h 
-jc msgErrorRead
+jc errorReadingFile
+Popear
 endm
 
 ; esto lo podria borrar sin problemas.

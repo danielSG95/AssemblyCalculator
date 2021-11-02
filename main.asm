@@ -1,7 +1,8 @@
+include smachine.asm
 include macros.asm
 include operar.asm 
 include grafica.asm
-include statemachine.asm
+
 
 .model small
 
@@ -63,6 +64,13 @@ include statemachine.asm
             msgEnterIntervalF db 'del intervalo: ', '$'
 
     ; "VARIABLES"
+
+        ; archivos
+        handler dw ?
+        bufferRead db 1000 dup('$'), '$'
+        auxiliarReader db 150 dup('$'), '$' ; lo utilizare para obtener la ruta del archivo
+
+
         selectionGraph db 31h
         functionToShow db 500 dup('$'), '$' ; que tan grande lo puedo hacer ?? 
         functionsDInMemory db 1000 dup('$'), '$' ; para guardar las funciones derivadas
@@ -88,11 +96,6 @@ include statemachine.asm
 
         inferiorLimit db 10 dup('$')
         superiorLimit db 10 dup('$')
-
-        ; archivos
-        bufferRead db 1000 dup('$'), '$'
-        fileHandler dw ?
-        auxiliarReader db 100 dup('$') ; lo utilizare para obtener la ruta del archivo
 
     ; ERRORES
         msgErrorNoFunction db 'No ingreso funcion alguna', '$'
@@ -215,9 +218,10 @@ main proc
         ; tambien se deberia de analizar
         print subMenuF4
         getText auxiliarReader
-        _openFile auxiliarReader, fileHandler
-        _readFile fileHandler, bufferRead, SIZEOF bufferRead
-
+        _openFile auxiliarReader, handler
+        ; _readFile handler, bufferRead, SIZEOF bufferRead
+        ; testing area 
+        AnalyzeFile
         jmp Start
     Derived:
         xor si, si
@@ -368,40 +372,28 @@ main proc
         xor al, al
         int 21h
     ; ERRORS
-        WriteError:
-            print msgErrorWrite
-            getChar
-            print cleanChar
-            print cleanChar
-            print cleanChar        
-            jmp Start
-        CreateError:
-            print msgErrorCreate
-            getChar
-            print cleanChar
-            print cleanChar
-            print cleanChar        
-            jmp Start
-        CloseError:
-            print msgErrorClose
-            getChar
-            print cleanChar
-            print cleanChar
-            print cleanChar        
-            jmp Start
-        ReadError:
-            print msgErrorRead
-            getChar
-            print cleanChar
-            print cleanChar
-            print cleanChar        
-            jmp Start
-        
         NoEndCharError:
             print missingCharE
             getChar
             ClearConsole
             jmp Start
+
+        errorClosingFile:
+            print msgErrorClose
+            getChar
+            ClearConsole
+            jmp Start
+        errorOpeningFile:
+            print msgErrorOpen
+            getChar
+            ClearConsole
+            jmp Start
+        errorReadingFile:
+            print msgErrorRead
+            getChar
+            ClearConsole
+            jmp Start
+        
 main endp
 
 end
