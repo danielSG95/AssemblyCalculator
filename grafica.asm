@@ -5,12 +5,12 @@ include eje_func.asm
 
     getOFunction macro string
         local coef4, coef3, coef2, coef1, coef0
-        Pushear
+        pushStack
         xor si, si
-        ConcatText string, msgFunctionM, SIZEOF msgFunctionM
+        concatenar string, msgFunctionM, SIZEOF msgFunctionM
                 
         coef4:
-            ConcatText string, valueX4, SIZEOF valueX4
+            concatenar string, valueX4, SIZEOF valueX4
             mov string[si], 58h         ; X
             inc si
             mov string[si], 34h         ; 4
@@ -24,8 +24,8 @@ include eje_func.asm
         coef0:
             mov string[si], 2bh         ; +
             inc si
-            ConcatText string, valueX0, SIZEOF valueX0
-        Popear
+            concatenar string, valueX0, SIZEOF valueX0
+        popStack
     endm
 
 
@@ -52,11 +52,11 @@ include eje_func.asm
 
     GraphOriginalMacro macro inferior, superior
         local Follow, negativoLimiteInferior, PrintP,  cicloNumeroNegativo, cicloNumeroPositivo, pintar_x_negativo, NegativeXP, pintar_x_positivo, pintarNegativos, PositiveXP, finalizarCicloNegativo, finalizarCicloPositivo
-        Pushear
+        pushStack
 
         limpiarRegistros
 
-        ConvertToNumber inferior
+        toInt inferior
 
         test ax, 1000000000000000b
             jnz negativoLimiteInferior
@@ -101,7 +101,7 @@ include eje_func.asm
             jne cicloNumeroNegativo
 
 
-        ConvertToNumber superior
+        toInt superior
         mov cx, ax
 
         ; +X
@@ -117,12 +117,12 @@ include eje_func.asm
             ejecucionTermino4 01h, valueX2  ; {***X2***}     Guarda el valor del grado 2
             movimientoDeTerminosExponentes  ; Muevo el valor del grado 2 a 'bx'
                         
-            ConvertToNumber valueX1         ; {***X1***} Convert the coefficient A x^1
+            toInt valueX1         ; {***X1***} Convert the coefficient A x^1
                 Pop cx
                 mul cx
 
             movimientoDeTerminosExponentes  ; Muevo el valor del grado 1 a 'bx'
-            ConvertToNumber valueX0     ; {***X0***}     convierte el coeficiente E
+            toInt valueX0     ; {***X0***}     convierte el coeficiente E
             reestablecerValores
             
             ; ***********************Print pixels*********************
@@ -150,18 +150,18 @@ include eje_func.asm
         dec cx
             jne cicloNumeroPositivo
 
-        Popear
+        popStack
     endm
 
 
 
     GraphDerivedMacro macro inferior, superior
         local Follow, negativoLimiteInferior, cicloNumeroNegativo, cicloNumeroPositivo, pintar_x_negativo, pintar_x_positivo, pintarNegativos, NegativeXP, PositiveXP, PrintP, finalizarCicloNegativo, finalizarCicloPositivo
-        Pushear
+        pushStack
 
         limpiarRegistros
 
-        ConvertToNumber inferior
+        toInt inferior
 
         test ax, 1000000000000000b
             jnz negativoLimiteInferior
@@ -184,11 +184,11 @@ include eje_func.asm
             ejecucionTermino4 01h, valueXD2     ; {***X2***}     Guarda el valor de grado 2
             movimientoDeTerminosExponentes
 
-            ConvertToNumber valueXD1            ; {***X1***}
+            toInt valueXD1            ; {***X1***}
             popeo
             movimientoDeTerminosExponentes      ; {***X1***}     Mueve el valor de grado 1 a 'bx'
 
-            ConvertToNumber valueXD0            ; {***X0***}
+            toInt valueXD0            ; {***X0***}
             reestablecerValores
 
 
@@ -214,7 +214,7 @@ include eje_func.asm
         dec cx
             jne cicloNumeroNegativo
 
-        ConvertToNumber superior
+        toInt superior
 
         mov cx, ax
 
@@ -228,11 +228,11 @@ include eje_func.asm
             ejecucionTermino4 01h, valueXD2     ; {***X2***}
             movimientoDeTerminosExponentes
 
-            ConvertToNumber valueXD1            ; {***X1***}
+            toInt valueXD1            ; {***X1***}
             reestablecerValoresMulValorCx
 
             movimientoDeTerminosExponentes      ; Muevo el valor de bx^1 a 'bx'
-            ConvertToNumber valueXD0        ; {***X0***}
+            toInt valueXD0        ; {***X0***}
             reestablecerValores
 
 
@@ -263,18 +263,18 @@ include eje_func.asm
         dec cx
             jne cicloNumeroPositivo
 
-        Popear
+        popStack
     endm
 
 
 
     GraphIntegralMacro macro inferior, superior
         local Follow, negativoLimiteInferior, cicloNumeroNegativo, cicloNumeroPositivo, pintar_x_negativo, pintar_x_positivo, pintarNegativos, NegativeXP, PositiveXP, PrintP, finalizarCicloNegativo, finalizarCicloPositivo
-        Pushear
+        pushStack
 
         limpiarRegistros
 
-        ConvertToNumber inferior
+        toInt inferior
 
         test ax, 1000000000000000b
             jnz negativoLimiteInferior
@@ -319,7 +319,7 @@ include eje_func.asm
             jne cicloNumeroNegativo
         
 
-        ConvertToNumber superior
+        toInt superior
         mov cx, ax
 
         ; +X
@@ -340,11 +340,11 @@ include eje_func.asm
             ejecucionTermino4 01h, valueXI2     ; {***X2***}
             movimientoDeTerminosExponentes
 
-            ConvertToNumber valueXI1            ; {***X1***}
+            toInt valueXI1            ; {***X1***}
             reestablecerValoresMulValorCx
 
             movimientoDeTerminosExponentes
-            ConvertToNumber valueXI0            ; {***X0***}
+            toInt valueXI0            ; {***X0***}
             reestablecerValores
 
             ;************************* pintar ejes
@@ -370,7 +370,7 @@ include eje_func.asm
             finalizarCicloPositivo:
         dec cx
             jne cicloNumeroPositivo
-        Popear
+        popStack
     endm
 
 

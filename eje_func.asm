@@ -4,7 +4,7 @@
     ejecucionTermino4 macro val1, val2 
         multiplicacion_actualizarDatosEje_x cx, val1
         Push ax                 ; Guardo el valor del grado mas alto x^4
-        ConvertToNumber val2    ; convierto el coeficiente a numero
+        toInt val2    ; convierto el coeficiente a numero
         mov bx, ax              
         Pop ax            
         mul bx                  ; multiplico el coeficiente por el exponente
@@ -36,7 +36,7 @@
         multiplicacion_actualizarDatosEje_x cx, val1
         neg ax                  ; niego el valor almacenado en 'ax'
         Push ax                 ; Guardo el valor del grado mas alto x^3
-        ConvertToNumber val2    
+        toInt val2    
         mov bx, ax              
         Pop ax                  
         mul bx                  ; multiplico el coeficiente por el exponente
@@ -119,11 +119,11 @@
         ejecucionTermino4 01h, val2  ;{***X2***}     guarda el valor de x^2
         movimientoDeTerminosExponentes  ;reestablece el valor, bx=4x^4 + 3x^3
             
-        ConvertToNumber val3     ;{***X1***}     Convert the coefficient A x^1
+        toInt val3     ;{***X1***}     Convert the coefficient A x^1
         popeo                       ; se reestablece el valor de cx
         movimientoDeTerminosExponentes  ;Muevo el valor del coeficiente con exponente 'x^1 == Bx^1'  y  reestablezco el valor de 'ax' y lo almacena
             
-        ConvertToNumber val4 ;{***X0***} convierte el coeficiente E
+        toInt val4 ;{***X0***} convierte el coeficiente E
         reestablecerValores
 
         ; ********************   Print pixels   ***********************
@@ -147,7 +147,7 @@
     concatenacionFuncionText macro val1, val2, val3, val4
         mov val1[si], 2bh         ; +
         inc si
-        ConcatText val1, val2, val3
+        concatenar val1, val2, val3
         mov val1[si], 58h         ; X
         inc si
         mov val1[si], val4         ; recibo un caracter 

@@ -14,6 +14,7 @@ include grafica.asm
 
     ;   PRUEBA 
         testing db 'TEST', '$'
+        saliendomsg db 'Saliendo', '$'
 
         newLine db 13, 10, '$'
         cleanChar db '             ', '$'
@@ -32,7 +33,7 @@ include grafica.asm
             subMenuF1 db 13, 10, 9, '1- Ingresar Funcion', '$'
             subMenuF2 db 13, 10, 9,'2- Cargar Archivo', '$'
             subMenuF3 db 13, 10, 9,'3- Regresar', 10, 9, '$'
-            subMenuF4 db 13, 10, 9, 'Ingrese la ruta del archivo...',13,10, '$'
+            subMenuF4 db 13, 10, 9, 'Ingrese la ruta del archivo:', '$'
             headerEnterF db 'INGRESE LOS COEFICIENTES DE LA FUNCION: ', 13, 10, '$'
             msgEnterF db '- Coeficiente de x', '$'
             msgX4 db '4: ', '$'
@@ -70,12 +71,13 @@ include grafica.asm
         bufferRead db 1000 dup('$'), '$'
         auxiliarReader db 150 dup('$'), '$' ; lo utilizare para obtener la ruta del archivo
 
+        varAux db 200 dup('$'), '$'
 
         selectionGraph db 31h
         functionToShow db 500 dup('$'), '$' ; que tan grande lo puedo hacer ?? 
         functionsDInMemory db 1000 dup('$'), '$' ; para guardar las funciones derivadas
         functionsInMemory db 1000 dup('$'), '$' ; para guardar las funciones integradas
-
+        
         valueX4 db 10 dup('$')
         valueX3 db 10 dup('$')
         valueX2 db 10 dup('$')
@@ -105,7 +107,6 @@ include grafica.asm
         msgErrorCreate db 'Error al crear el archivo', '$'
         msgErrorClose db 'Error al cerrar el archivo', '$'
         msgErrorRead db 'Error al leer el archivo', '$'
-        missingCharE db 'Falto caracter de finalizacion (', 59, ')', '$'
 
 .code
 
@@ -115,12 +116,12 @@ main proc
     mov ds, ax
 
     Start:
-        ClearConsole
+        clr
         ; MENU
         print menu
         getChar
 
-        ClearConsole
+        clr
             cmp al, 31h ;1
                 je subMenuFuncion
             cmp al, 32h ;2
@@ -140,7 +141,7 @@ main proc
         print subMenuF2
         print subMenuF3
         getChar
-        cmp al, 31h
+        cmp al, 31h ; ingresar 
             je EnterFunction
         cmp al, 32h ;  Cargar archivo
             je loadFunctions
@@ -290,7 +291,7 @@ main proc
     Graph:
 
         print menuGraph
-        Pushear
+        pushStack
         getChar
         cmp al, 34h
             je Start
@@ -363,7 +364,7 @@ main proc
             int 10h
 
             ; llamar aqui a enviar serie.
-            Popear
+            popStack
 
             jmp Start
     
@@ -372,26 +373,20 @@ main proc
         xor al, al
         int 21h
     ; ERRORS
-        NoEndCharError:
-            print missingCharE
-            getChar
-            ClearConsole
-            jmp Start
-
         errorClosingFile:
             print msgErrorClose
             getChar
-            ClearConsole
+            clr
             jmp Start
         errorOpeningFile:
             print msgErrorOpen
             getChar
-            ClearConsole
+            clr
             jmp Start
         errorReadingFile:
             print msgErrorRead
             getChar
-            ClearConsole
+            clr
             jmp Start
         
 main endp
