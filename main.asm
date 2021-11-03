@@ -22,10 +22,15 @@ include grafica.asm
 
     ; CABECERAS Y MENUS
         ; MENU PRINCIPAL
-            menu db 13, 10, 9, '-_-MENU-_-', 13, 10, 9, '1) Ingresar Funcion f(x)', 
+            menu db 13, 10, 9, '### MENU ###', 13, 10, 9, '1) Ingresar Funcion f(x)', 
             13, 10, 9, '2) Funcion en memoria', 13, 10, 9, '3) Derivada f`(x)', 
             13, 10, 9, '4) Integral F(x)', 13, 10, 9, 
             '5) Graficar Funciones', 13, 10, 9, '8) Salir', 13, 10, '$'
+            
+            encabezado db 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 10,13,
+            'ARQUITECTURA DE ENSAMBLADORES Y COMPUTADORES 1', 13, 10
+            'Daniel Enrique Santos Godoy - 201325512', 13,10
+            'Carlos Arnoldo López Coroy - 201313894', 13,10
 
             msgRoute db 'Ingrese la ruta (##ruta.arq##): ', '$'
 
