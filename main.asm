@@ -28,9 +28,9 @@ include grafica.asm
             '5) Graficar Funciones', 13, 10, 9, '8) Salir', 13, 10, '$'
             
             encabezado db 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 10,13,
-            'ARQUITECTURA DE ENSAMBLADORES Y COMPUTADORES 1', 13, 10
-            'Daniel Enrique Santos Godoy - 201325512', 13,10
-            'Carlos Arnoldo López Coroy - 201313894', 13,10
+            'ARQUITECTURA DE ENSAMBLADORES Y COMPUTADORES 1', 13, 10,
+            'Daniel Enrique Santos Godoy - 201325512', 13,10,
+            'Carlos Arnoldo Lopez Coroy - 201313894', 13,10, '$'
 
             msgRoute db 'Ingrese la ruta (##ruta.arq##): ', '$'
 
@@ -122,6 +122,8 @@ main proc
 
     Start:
         clr
+        print encabezado
+        print newLine
         ; MENU
         print menu
         getChar
