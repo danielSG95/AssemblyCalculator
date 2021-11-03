@@ -12,43 +12,25 @@
 
         ; X4 -> X3
         X3:
-            ConvertToNumber valueX4     ; Value in ax        
-            mov bx, 04h
-            mul bx                      ; AX = valueX4 * 4
-            ConvertToString valueXD3
+            conversion_a_numero valueX4, 04h, valueXD3
             ConcatText string, valueXD3, SIZEOF valueXD3
-            mov string[si], 58h         ; X
-            inc si
-            mov string[si], 33h         ; 3
-            inc si
+            almacenarDatos_equisExp string, 58h, 33h    ;x,3
 
         ; X3 -> X2
         X2:
-            ConvertToNumber valueX3     ; Value in ax        
-            mov bx, 03h
-            mul bx                      ; AX = valueX3 * 3
-            ConvertToString valueXD2
+            conversion_a_numero valueX3, 03h, valueXD2
             mov string[si], 2bh         ; +
             inc si
             ConcatText string, valueXD2, SIZEOF valueXD2
-            mov string[si], 58h         ; X
-            inc si
-            mov string[si], 32h         ; 2
-            inc si
+            almacenarDatos_equisExp string, 58h, 32h    ;x,2
 
         ; X2 -> X1
         X1:
-            ConvertToNumber valueX2     ; Value in ax        
-            mov bx, 02h
-            mul bx                      ; AX = valueX3 * 2
-            ConvertToString valueXD1
+            conversion_a_numero valueX2, 02h, valueXD1
             mov string[si], 2bh         ; +
             inc si
             ConcatText string, valueXD1, SIZEOF valueXD1
-            mov string[si], 58h         ; X
-            inc si
-            mov string[si], 31h         ; 1
-            inc si        
+            almacenarDatos_equisExp string, 58h, 31h    ;x,1
         
         ; X1 -> X0
         X0:
@@ -64,140 +46,106 @@
 
 
 
+    conversion_a_numero macro val1, val2, val3
+        ConvertToNumber val1     ; Value in ax        
+        mov bx, val2
+        mul bx
+        ConvertToString val3
+    endm 
+
+
+    ;almacena de esto: x^2 esto = x 2
+    almacenarDatos_equisExp macro vec, carac1, carac2
+        mov vec[si], carac1         ; X
+        inc si
+        mov vec[si], carac2         ; 1
+        inc si
+    endm 
+
+
+
 
 ;*******************************************************************************
 ;					FUNCIONES UTILIZADAS PARA REALIZAR INTEGRALES 
 ;*******************************************************************************
 
     getIFunction macro string
-        local X5, NegativeX5, FollowX5, EndNegX5, EndPosX5, X4, NegativeX4, FollowX4, EndNegX4, EndPosX4, X3, NegativeX3, FollowX3, EndNegX3, EndPosX3, X2, NegativeX2, FollowX2, EndNegX2, EndPosX2, X1, NegativeX1, FollowX1, EndNegX5, EndPosX5, X0, NegativeX0, FollowX0
+        local X5, negativoGrado5, sigExpGrado5, X4, negativoGrado4, sigExpGrado4, X3, negativoGrado3, sigExpGrado3, X2, negativoGrado2, sigExpGrado2, X1, X0
         Pushear
         xor si, si
         ConcatText string, msgIntegral, SIZEOF msgIntegral
 
-        ; X4 -> X5
+        ; Los siguientes x# se aumenta el exponente debido los cambios que sufre la integral x4=>x5, x3=x4, etc...
         X5:
             ConvertToNumber valueX4
             xor di, di
             test ax, 1000000000000000b
-                jnz NegativeX5
-            jmp FollowX5
+                jnz negativoGrado5
+            jmp sigExpGrado5
 
-            NegativeX5:
+            negativoGrado5:
                 neg ax
             
-			FollowX5:
-            mov bl, 05h
-            div bl
+			sigExpGrado5:
+                mov bl, 05h
+                div bl
 
             ConvertToString valueXI5
             ConcatText string, valueX4, SIZEOF valueX4
+            realizoDegradoExponente string, 35h, 35h    ;5,5
 
-            mov string[si], 2fh             ; /
-            inc si
-            mov string[si], 35h             ; 5
-            inc si
-            mov string[si], 58h             ; X
-            inc si
-            mov string[si], 35h             ; 5
-            inc si
-
-        ; X3 -> X4
+        
         X4:
             mov string[si], 2bh         ; +
             inc si
             ConvertToNumber valueX3
             test ax, 1000000000000000b
-                jnz NegativeX4
-            jmp FollowX4
+                jnz negativoGrado4
+            jmp sigExpGrado4
             
-			NegativeX4:
+			negativoGrado4:
                 neg ax
             
-			FollowX4:
-            mov bl, 04h
-            div bl
-            xor ah, ah
+			sigExpGrado4:
+                capturaSiguientes_exp string, 04h, valueXI4, valueX3, 34h;4,4
 
-            ConvertToString valueXI4
-            ConcatText string, valueX3, SIZEOF valueX3
-
-            mov string[si], 2fh             ; /
-            inc si
-            mov string[si], 34h             ; 4
-            inc si
-            mov string[si], 58h             ; X
-            inc si
-            mov string[si], 34h             ; 4
-            inc si
-
-        ; X2 -> X3
+        
         X3:
             mov string[si], 2bh         ; +
             inc si
             ConvertToNumber valueX2
             test ax, 1000000000000000b
-                jnz NegativeX3
-            jmp FollowX3
+                jnz negativoGrado3
+            jmp sigExpGrado3
             
-            NegativeX3:
+            negativoGrado3:
                 neg ax
            
-		    FollowX3:
-            mov bl, 03h
-            div bl
-            xor ah, ah
+		    sigExpGrado3:
+                capturaSiguientes_exp string, 03h, valueXI3, valueX2, 33h;3,3
 
-            ConvertToString valueXI3
-            ConcatText string, valueX2, SIZEOF valueX2
-
-            mov string[si], 2fh             ; /
-            inc si
-            mov string[si], 33h             ; 3
-            inc si
-            mov string[si], 58h             ; X
-            inc si
-            mov string[si], 33h             ; 3
-            inc si
-
-        ; X1 -> X2
+        
         X2:
             mov string[si], 2bh         ; +
             inc si
             ConvertToNumber valueX1
             test ax, 1000000000000000b
-                jnz NegativeX2
-            jmp FollowX2
+                jnz negativoGrado2
+            jmp sigExpGrado2
             
-            NegativeX2:
+            negativoGrado2:
                 neg ax
-            FollowX2:
-            mov bl, 02h
-            div bl
-            xor ah, ah
-
-            ConvertToString valueXI2
-            ConcatText string, valueX1, SIZEOF valueX1
-
-            mov string[si], 2fh             ; /
-            inc si
-            mov string[si], 32h             ; 2
-            inc si
-            mov string[si], 58h             ; X
-            inc si
-            mov string[si], 32h             ; 2
-            inc si
+            sigExpGrado2:
+                capturaSiguientes_exp string, 02h, valueXI2, valueX1, 32h;2,2
 
 
-        ; X0 -> X1
+        
         X1:
             mov string[si], 2bh         ; +
             inc si
-
             ConvertToNumber valueX0
             ConvertToString valueXI1
             ConcatText string, valueX0, SIZEOF valueX0
-
             mov string[si], 58h             ; X
             inc si
             mov string[si], 31h             ; 1
@@ -212,3 +160,30 @@
     endm
 
 
+    ;metodos varios
+    capturaSiguientes_exp macro string, val1, val2, val3, val4
+        division val1
+        ConvertToString val2    
+        ConcatText string, val3, SIZEOF val3    ;concatena la ecuacion a formar
+        realizoDegradoExponente string, val4, val4 ;caputra numero 2,2 ; 3,3 et..
+    endm
+
+
+
+    ; AX^4  ==  (A/4)X^3
+    realizoDegradoExponente macro vec, c1, c2 
+        mov vec[si], 2fh     ; /
+        inc si
+        mov vec[si], c1      ; valor numerico
+        inc si
+        mov vec[si], 58h     ; X
+        inc si
+        mov vec[si], c2      ; valor numerico exponencial
+        inc si
+    endm
+
+    division macro c1
+        mov bl, c1
+        div bl
+        xor ah, ah
+    endm 
