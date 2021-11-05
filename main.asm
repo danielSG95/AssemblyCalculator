@@ -13,8 +13,22 @@ include grafica.asm
 .data
 
     ;   PRUEBA 
-        testing db 'TEST', '$'
+        testing db 'testing :', '$'
         saliendomsg db 'Saliendo', '$'
+        msgError db 'Error en el automata >:v/', '$'
+        estado0 db 'S0 ', '$'
+        estado1 db 'S1 ', '$'
+        estado2 db 'S2 ', '$'
+        estado3 db 'S3 ', '$'
+        estado4 db 'S4 ', '$'
+        estado5 db 'S5 ', '$'
+        estado6 db 'S6 ', '$'
+
+        msgIt db 'Iterando ', '$'
+
+        msg1 db 'Analizando', 13, 10, '$'
+        msg2 db 'Antes de ', 13, 10 ,'$'
+
 
         newLine db 13, 10, '$'
         cleanChar db '             ', '$'
@@ -74,16 +88,16 @@ include grafica.asm
         ; archivos
         handler dw ?
         bufferRead db 1000 dup('$'), '$'
-        auxiliarReader db 150 dup('$'), '$' ; lo utilizare para obtener la ruta del archivo
+        auxiliarReader db 150 dup(0), '$' ; lo utilizare para obtener la ruta del archivo
 
-        varAux db 200 dup('$'), '$'
+        varAux db 10 dup('$'), '$'
 
         selectionGraph db 31h
         functionToShow db 500 dup('$'), '$' ; que tan grande lo puedo hacer ?? 
         functionsDInMemory db 1000 dup('$'), '$' ; para guardar las funciones derivadas
         functionsInMemory db 1000 dup('$'), '$' ; para guardar las funciones integradas
         
-        valueX4 db 10 dup('$')
+        valueX4 db 10 dup('$'), '$'
         valueX3 db 10 dup('$')
         valueX2 db 10 dup('$')
         valueX1 db 10 dup('$')
@@ -121,7 +135,7 @@ main proc
     mov ds, ax
 
     Start:
-        clr
+        ; clr
         print encabezado
         print newLine
         ; MENU
@@ -227,12 +241,18 @@ main proc
         print subMenuF4
         getText auxiliarReader
         _openFile auxiliarReader, handler
-        ; _readFile handler, bufferRead, SIZEOF bufferRead
+        _readFile handler, bufferRead, SIZEOF bufferRead
+        
+        print msg1
+        getChar
         ; testing area 
+        
+        
         AnalyzeFile
         jmp Start
     Derived:
         xor si, si
+        ; se verifica que no este vacio.
         cmp valueX4[si], 24h ;$
             jne ShowDFunction
         cmp valueX3[si], 24h

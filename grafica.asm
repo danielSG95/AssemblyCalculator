@@ -59,23 +59,23 @@ include eje_func.asm
         toInt inferior
 
         test ax, 1000000000000000b
-            jnz negativoLimiteInferior
+            jnz negativoLimiteInferior ; si es negativo lo niega. para obtener el decimal positivo. 
         jmp Follow
 
         negativoLimiteInferior:
             neg ax
 
         Follow:
-        mov cx, ax
+        mov cx, ax ; Asigna el limite inferior, seran las veces que se itere.
 
-        ; -X
-        cicloNumeroNegativo:
-            Push cx  
+        ; -X2 -x y x aqui voy a hacer -x
+        cicloNumeroNegativo: ; el tag que se va a iterar.
+            Push cx ;guarda el valor de cx, porque abajo lo necesitamos para llevar el control de iteraciones. 
 
             
             ejecucionTermino4 03h, valueX4  ;{***X4***}    guarda el valor de x^4 y multiplica el exponente por el coeficiente 2x^3 = 6x
-            Push ax                 ; Save the value of DX^4
-            Push cx                 ; Save the value of cx for the loop
+            Push ax ; Se guarda el resultado de a*x*x*x*x = ax
+            Push cx ; Guarda el valor de cx para iterar
             guardarGrados_deLaFuncion valueX3, valueX2, valueX1, valueX0
 
 
@@ -88,7 +88,7 @@ include eje_func.asm
                 jmp pintarNegativos
 
             pintar_x_positivo:  ; Eje y
-                mov dx, 63h
+                mov dx, 63h ; marcas de paso para saber en que pixel iniciar a pintar.
                 sub dx, ax
 
             pintarNegativos:                
@@ -97,9 +97,8 @@ include eje_func.asm
                 printPixel bx, dx, 4fh
 
             finalizarCicloNegativo:
-        dec cx
-            jne cicloNumeroNegativo
-
+        dec cx ; mientras no sea 0, iterar.
+            jne cicloNumeroNegativo ; mantiene el ciclo. 
 
         toInt superior
         mov cx, ax

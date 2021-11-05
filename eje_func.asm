@@ -1,28 +1,30 @@
 
-
-
+    ; 2 x ^ 4 -> x = 5
+    ; cx limite inf. 
+    ; val1 -> 03h
+    ; val2 -> coeficiente # [n]*x^4
     ejecucionTermino4 macro val1, val2 
         multiplicacion_actualizarDatosEje_x cx, val1
         Push ax                 ; Guardo el valor del grado mas alto x^4
         toInt val2    ; convierto el coeficiente a numero
-        mov bx, ax              
-        Pop ax            
-        mul bx                  ; multiplico el coeficiente por el exponente
-        Pop cx            
+        mov bx, ax  ; bx -> 2            
+        Pop ax      ; 5^4->625      
+        mul bx      ; 625*2 = ax
+        Pop cx ; sacamos el resultado de cx.            
     endm 
 
 
 
-
+    ; Hace la potencia. x^n 
     multiplicacion_actualizarDatosEje_x macro number, times
         local cicloMultiplicar
         xor ax, ax
         xor bx, bx
-
-        mov ax, number
-        mov bx, number
-        mov cx, times
-
+        ; 2x^4 -> (5, 10) -> 
+        mov ax, number ; 5
+        mov bx, number ;5
+        mov cx, times; 3
+    ; 0...3 -> 5*5*5*5 = (5)^4
         cicloMultiplicar:
             mul bx
         Loop cicloMultiplicar
@@ -30,8 +32,8 @@
 
 
 
-
-
+    ; 2x^3 -> x-> 2 = 2(2*2*2) = 16
+    ; saca el resultado de la mult de n * x * x * x -> ax ? valuando 
     ejecucionTermino3 macro val1, val2 
         multiplicacion_actualizarDatosEje_x cx, val1
         neg ax                  ; niego el valor almacenado en 'ax'
@@ -46,9 +48,9 @@
 
 
     movimientoDeTerminosExponentes macro 
-        mov bx, ax
-        Pop ax                      ; reestablecer el valor de 'ax'
-        add ax, bx                  ; AX = DX^4 + CX^3
+        mov bx, ax ; necesito guardar el valor de ax. para operar nx3
+        Pop ax  ; nx4
+        add ax, bx ; AX = DX^4 + CX^3 + FX^3 + Ex
         Push ax                     ; guardo el valor de AX
         Push cx                   
     endm 
@@ -57,10 +59,10 @@
 
 
     popeo macro 
-        Pop cx
-        Push cx
-        neg cx
-        mul cx
+        Pop cx ;-> saca 5
+        Push cx ;-> mete 5
+        neg cx ; -5 -> 5 5 -> -5
+        mul cx ; cx * ???
         Pop cx
     endm
 
@@ -70,8 +72,8 @@
 
     reestablecerValores macro
         mov bx, ax
-        Pop cx
-        Pop ax
+        Pop cx ; el # que se esta valuando. 
+        Pop ax ; AX = DX^4 + CX^3 + FX^3 + Ex + G = punto en el modo video
         add ax, bx
     endm
 
@@ -87,10 +89,12 @@
 
 
 
-
+    ; 159d 
+    ; bx-> 159 
+    ; 159 - 5 
     dibujarEje_x macro valor ;ejes x
         mov bx, valor
-        sub bx, cx
+        sub bx, cx ; esto lo modifique
     endm
 
 
@@ -111,7 +115,10 @@
     endm
 
 
-
+    ; val1 -> [n] x ^3 
+    ; val2 -> [n] x ^2
+    ; val3 -> [n] x
+    ; val4 -> [n]
     guardarGrados_deLaFuncion macro val1, val2, val3, val4
         ejecucionTermino3 02h, val1  ;{***X3***}     guarda el valor de x^3 y multiplica el exponente por el coeficiente 2x^3 = 6x
         movimientoDeTerminosExponentes  ;reestablece el valor, bx=4x^4 + 3x^3

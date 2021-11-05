@@ -2,7 +2,7 @@
 ;					FUNCIONES UTILIZADAS PARA REALIZAR DERIVADAS 
 ;*******************************************************************************
 
-
+    ; 4x... <- imprimir en pantalla. 
     getDFunction macro string
         local X3, X2, X1, X0
         pushStack
