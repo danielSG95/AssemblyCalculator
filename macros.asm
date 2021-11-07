@@ -1,41 +1,41 @@
-; PRINT ON THE SCREEN
+ ; Inprimir en pantalla
 print macro string
-    Pushear
-    mov ah, 09h             ; PRINT
+    pushStack
+    mov ah, 09h
     mov dx, offset string
     int 21h
-    Popear
+    popStack
 endm
 
-; GET CHARACTER
+; Obtiene un caracter de teclado
 getChar macro    
     mov ah, 01h
     int 21h
 endm
 
-; CLEAN STRING
+; Limpia un array
 Clean macro string, numBytes, char
-    local RepeatLoop
-    Pushear
+    local while
+    pushStack
     xor si, si
     xor cx, cx
     mov cx, numBytes
-    RepeatLoop:
+    while:
         mov string[si], char
         inc si
-    Loop RepeatLoop
-    Popear
+    Loop while
+    popStack
 endm
 
-; GET TEXT UNTIL THE USER WRITE ENTER
+; Obtener cadena
 getText macro string
-    local getCharacter, EndGC, Backspace
+    local getCharacter, fin, Backspace
     xor si, si
     xor ax, ax
     getCharacter:
         getChar
         cmp al, 0dh
-            je EndGC
+            je fin
         cmp al, 08h
             je Backspace
         mov string[si], al
@@ -46,36 +46,35 @@ getText macro string
         dec si
         mov string[si], al
         jmp getCharacter
-    EndGC:        
+    fin:        
         mov al, 24h
         mov string[si], al
 endm
 
-; Move cursor
-; The screen in text mode have 25 rows and 80 columns
 moveCursor macro row, column
-    Pushear
+    pushStack
     mov ah, 02h
     mov dh, row
     mov dl, column
     int 10h
-    Popear
+    popStack
 endm
 
-; CLEAN CONSOLE
-ClearConsole macro
-    local ClearConsoleRepeat
-    Pushear
+; Limpia la pantalla
+clr macro
+    local while
+    pushStack
     mov dx, 50h
-    ClearConsoleRepeat:
+    while:
         print newLine
-    Loop ClearConsoleRepeat
+    Loop while
     moveCursor 00h, 00h
-    Popear
+    popStack
 endm
 
+; pinta un pixel en la pantalla
 printPixel macro x, y, color
-    Pushear
+    pushStack
 
     mov ah, 0ch
     mov al, color
@@ -85,31 +84,32 @@ printPixel macro x, y, color
 
     int 10h
 
-    Popear
+    popStack
 endm
 
-ConcatText macro string1, string2, numBytes
-    local RepeatConcat, EndGC
+; concatena str2 en str1
+concatenar macro str1, str2, numBytes
+    local while, fin
 
     xor di, di
     mov cx, numBytes
-    RepeatConcat:
-        mov al, string2[di]
+    while:
+        mov al, str2[di]
         cmp al, 24h
-            je EndGC
+            je fin
         inc di
-        mov string1[si], al
+        mov str1[si], al
         inc si
-    Loop RepeatConcat
-    EndGC:
+    Loop while
+    fin:
 endm
 
 ;*****************************************************
-; CONVERSIONES
+; *******************CONVERSIONES*********************
 ;*****************************************************
 
-    ConvertToNumber macro string
-        local Begin, EndGC, PositiveSymbol, NegativeSymbol, Negative
+    toInt macro string
+        local inicio, fin, positivo, negativo, negar
         Push si
         
         xor ax, ax
@@ -119,49 +119,41 @@ endm
         mov bx, 10
         xor si, si
         xor di, di
-        ; Check signs
-        Begin:
+        inicio:
             mov cl, string[si]      
-            ; If the ascii is +
             cmp cl, '+'
-                je PositiveSymbol
-            ; If the ascii is -
+                je positivo
             cmp cl, '-'
-                je NegativeSymbol
-            ; If the ascii is less than the ascii of 0
+                je negativo
             cmp cl, 48
-                jl EndGC
-            ; If the ascii is more than the ascii of 9
+                jl fin
             cmp cl, 57
-                jg EndGC
+                jg fin
             inc si
-            sub cl, 48  ; Subtract 48 to get the number
-            mul bx      ; Multiply by 10
+            sub cl, 48  ; resta 48 para obtener el numero decimal
+            mul bx      ; Se multiplica por 10 para obtener decenas/centenas, etc
             add ax, cx
 
-            jmp Begin
-        PositiveSymbol:
+            jmp inicio
+        positivo:
             inc si
-            jmp Begin
-        NegativeSymbol:
+            jmp inicio
+        negativo:
             inc di            
             inc si
-            jmp Begin
-        Negative:
-            ;TestingAX
+            jmp inicio
+        negar:
             xor di, di
             neg ax
             xor dx, dx
-        EndGC:        
+        fin:        
             cmp di, 01h
-                je Negative
-            ; The string converted to number is in the registry ax
-            ;TestingAX
+                je negar
             Pop si
     endm
 
-    ConvertToString macro string
-        local Divide, Divide2, EndCr3, Negative, End2, EndGC
+    toString macro string
+        local Divide, Divide2, EndCr3, negar, End2, fin
         Push si
         xor si, si
         xor cx, cx
@@ -169,9 +161,9 @@ endm
         xor dx, dx
         mov dl, 0ah
         test ax, 1000000000000000b
-            jnz Negative
+            jnz negar
         jmp Divide2
-        Negative:
+        negar:
             neg ax
             mov string[si], 45
             inc si
@@ -195,7 +187,7 @@ endm
         mov ah, 24h
         mov string[si], ah
         inc si
-        EndGC:
+        fin:
             Pop si
     endm
 
@@ -203,7 +195,7 @@ endm
 ;RECOVER THINGS 
 ;*****************************************************
 
-    Pushear macro
+    pushStack macro
         push ax
         push bx
         push cx
@@ -212,7 +204,7 @@ endm
         push di
     endm
 
-    Popear macro                    
+    popStack macro                    
         pop di
         pop si
         pop dx
@@ -220,3 +212,33 @@ endm
         pop bx
         pop ax
     endm
+
+;***********************************************
+;************MANEJO DE ARCHIVOS*****************
+;***********************************************
+
+_openFile macro name, handler 
+print name
+mov ah, 3dh
+mov al, 010b
+lea dx, name
+int 21h
+jc errorOpeningFile
+mov handler, ax
+endm
+
+_closeFile macro handler
+mov ah, 3eh
+mov bx, handler
+int 21h
+jc errorClosingFile
+endm
+
+_readFile macro handler, buffer, size
+mov ah, 3fh 
+mov bx, handler
+mov cx, size
+lea dx, buffer
+int 21h 
+jc errorReadingFile
+endm
